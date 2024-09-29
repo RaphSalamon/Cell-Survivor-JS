@@ -1,92 +1,95 @@
-let xp = 0;
-let health = 100;
-let gold = 50;
-let currentWeapon = 0;
-let fighting;
-let monsterHealth;
-let inventory = ["stick"];
+/* ADD FEATURE THAT FORCES A RANDOM ENCOUNTER WITHOUT THE ABILITY TO DODGE IF YOU RUN OUT OF HOST CELLS */
+
+let virulence = 0;
+let phages = 100;
+let hostCells = 5;
+let current = 0;
+let fighting = 0;
+let biofilmIntegrity;
+let adaptations = ["base form"];
 
 const button1 = document.querySelector('#button1');
 const button2 = document.querySelector("#button2");
 const button3 = document.querySelector("#button3");
 const text = document.querySelector("#text");
-const xpText = document.querySelector("#xpText");
-const healthText = document.querySelector("#healthText");
-const goldText = document.querySelector("#goldText");
-const monsterStats = document.querySelector("#monsterStats");
-const monsterName = document.querySelector("#monsterName");
-const monsterHealthText = document.querySelector("#monsterHealth");
-const weapons = [
-  { name: 'stick', power: 5 },
-  { name: 'dagger', power: 30 },
-  { name: 'claw hammer', power: 50 },
-  { name: 'sword', power: 100 }
+const virulenceText = document.querySelector("#virulenceText");
+const phagesText = document.querySelector("#phagesText");
+const hostsText = document.querySelector("#hostsText");
+const colonyStats = document.querySelector("#colonyStats");
+const colonyName = document.querySelector("#colonyName");
+const colonyIntegrityText = document.querySelector("#colonyIntegrity");
+const adaptationsList = [
+  { name: 'base form', power: 5 },
+  { name: 'improved receptor binding', power: 30 },
+  { name: 'upgraded tailspike proteins', power: 50 },
+  { name: 'biofilm-degrading enzymes', power: 100 }
 ];
 const monsters = [
   {
-    name: "slime",
+    name: "S. Aureus Colony",
     level: 2,
-    health: 15
+    biofilmIntegrity: 15
   },
   {
-    name: "fanged beast",
+    name: "A. Baumannii Colony",
     level: 8,
-    health: 60
+    biofilmIntegrity: 60
   },
   {
-    name: "dragon",
+    name: "K. Pneumoniae Biofilm",
     level: 20,
-    health: 300
+    biofilmIntegrity: 300
   }
+
 ]
 const locations = [
   {
-    name: "town square",
-    "button text": ["Go to store", "Go to cave", "Fight dragon"],
-    "button functions": [goStore, goCave, fightDragon],
-    text: "CHOOSE YOUR NEXT MOVE. \"Store\"."
+    name: "Choose Next Move",
+    "button text": ["Maintenance & Upgrades", "Seek Hosts", "Attack K. Pneumoniae Biofilm"],
+    "button functions": [getUpgrades, seekHosts, attackBoss],
+    text: "Choose your next move."
   },
   {
-    name: "store",
-    "button text": ["Buy 10 health (10 gold)", "Buy weapon (30 gold)", "Go to town square"],
-    "button functions": [buyHealth, buyWeapon, MAIN],
-    text: "You enter the store."
+    name: "upgrade",
+    "button text": ["Produce 10 phages (lyse 1 host)", "Recombine Genes (sacrifice 3 hosts)", "Cancel"],
+    "button functions": [lyseHosts, recombination, cancel],
+    text: "Your hosts' cellular machinery awaits your command."
   },
   {
-    name: "cave",
-    "button text": ["Fight slime", "Fight fanged beast", "Go to town square"],
-    "button functions": [fightSlime, fightBeast, MAIN],
-    text: "You enter the cave. You see some monsters."
+    name: "seekingHosts",
+    "button text": ["Attack S. Aureus Colony", "Attack A. Baumannii Colony", "Cancel"],
+    "button functions": [attackSA, attackAB, cancel],
+    text: "Your host cells encounter colonies of S. Aureus and A. Baumannii. Engage?"
   },
   {
-    name: "fight",
-    "button text": ["Attack", "Dodge", "Run"],
-    "button functions": [attack, dodge, MAIN],
-    text: "You are fighting a monster."
+    name: "attackingColony",
+    "button text": ["Infect", "Camouflage", "Disengage"],
+    "button functions": [infect, camouflage, disengage],
+    text: "You are attempting to attack a bacterial colony.\nOptions:\n- Infect: infect individual cells to weaken the colony.\n- Camouflage: hide phages in your host cells to avoid destruction by colony defenses. (Requires hosts.)"
   },
   {
-    name: "kill monster",
-    "button text": ["Go to town square", "Go to town square", "Go to town square"],
-    "button functions": [MAIN, MAIN, easterEgg],
-    text: 'The monster screams "Arg!" as it dies. You gain experience points and find gold.'
+    name: "Eradicate Colony",
+    "button text": ["Plan Next Move", "Plan Next Move", "Plan Next Move"],
+    "button functions": [nextMove, nextMove, easterEgg],
+    text: 'You have defeated the colony. You gain experience points and new host cells.'
   },
   {
     name: "lose",
     "button text": ["REPLAY?", "REPLAY?", "REPLAY?"],
     "button functions": [restart, restart, restart],
-    text: "You die. &#x2620;"
+    text: "You have been eradicated. Your failure disappoints the scientists."
   },
   { 
     name: "win", 
     "button text": ["REPLAY?", "REPLAY?", "REPLAY?"], 
     "button functions": [restart, restart, restart], 
-    text: "You defeat the dragon! YOU WIN THE GAME! &#x1F389;" 
+    text: "You defeated K. Pneumoniae! The scientists are pleased. (Maybe now they can get some sleep...)\n\nYOU WIN!" 
   },
   {
     name: "easter egg",
-    "button text": ["2", "8", "Go to town square?"],
-    "button functions": [pickTwo, pickEight, MAIN],
-    text: "You find a secret game. Pick a number above. Ten numbers will be randomly chosen between 0 and 10. If the number you choose matches one of the random numbers, you win!"
+    "button text": ["2", "8", "Cancel"],
+    "button functions": [pickTwo, pickEight, nextMove],
+    text: "One of your new hosts is carrying a strange gene, and inserting your viral genome has disabled the supressor sequence inhibiting it. Pick a number to determine what it does."
   }
 ];
 
@@ -106,56 +109,60 @@ function update(location) {
   text.innerHTML = location.text;
 }
 
-function MAIN() {
+function nextMove() {
   update(locations[0]);
 }
 
-function goStore() {
+function getUpgrades() {
   update(locations[1]);
 }
 
-function goCave() {
+function seekHosts() {
   update(locations[2]);
 }
 
-function buyHealth() {
-  if (gold >= 10) {
-    gold -= 10;
-    health += 10;
-    goldText.innerText = gold;
-    healthText.innerText = health;
+function lyseHosts() {
+  hostCells -= 1;
+  phages += 10;
+  goldText.innerText = hostCells;
+  healthText.innerText = phages;
+  /*if (hostCells >= 1) {
+    hostCells -= 1;
+    phages += 10;
+    goldText.innerText = hostCells;
+    healthText.innerText = phages;
   } else {
-    text.innerText = "You do not have enough gold to buy health.";
-  }
+    text.innerText = "You do not have enough hostCells produce more phages.";
+  }*/
 }
 
-function buyWeapon() {
-  if (currentWeapon < weapons.length - 1) {
-    if (gold >= 30) {
-      gold -= 30;
-      currentWeapon++;
-      goldText.innerText = gold;
-      let newWeapon = weapons[currentWeapon].name;
-      text.innerText = "You now have a " + newWeapon + ".";
-      inventory.push(newWeapon);
-      text.innerText += " In your inventory you have: " + inventory;
+function recombination() {
+  if (currentAdaptation < adaptations.length - 1) {
+    if (hostCells >= 3) {
+      hostCells -= 3;
+      currentAdaptation++;
+      hostsText.innerText = hostCells;
+      let newAdaptation = adaptations[currentAdaptation].name;
+      text.innerText = "You now have a " + newAdaptation + ".";
+      adaptations.push(newAdaptation);
+      text.innerText += " In your adaptations you have: " + adaptations;
     } else {
-      text.innerText = "You do not have enough gold to buy a weapon.";
+      text.innerText = "You do not have enough host cells to buy a weapon.";
     }
   } else {
     text.innerText = "You already have the most powerful weapon!";
-    button2.innerText = "Sell weapon for 15 gold";
+    button2.innerText = "Sell weapon for 15 hostCells";
     button2.onclick = sellWeapon;
   }
 }
 
 function sellWeapon() {
-  if (inventory.length > 1) {
-    gold += 15;
-    goldText.innerText = gold;
-    let currentWeapon = inventory.shift();
-    text.innerText = "You sold a " + currentWeapon + ".";
-    text.innerText += " In your inventory you have: " + inventory;
+  if (adaptations.length > 1) {
+    hostCells += 15;
+    goldText.innerText = hostCells;
+    let currentAdaptation = adaptations.shift();
+    text.innerText = "You sold a " + currentAdaptation + ".";
+    text.innerText += " In your adaptations you have: " + adaptations;
   } else {
     text.innerText = "Don't sell your only weapon!";
   }
@@ -171,31 +178,31 @@ function fightBeast() {
   goFight();
 }
 
-function fightDragon() {
+function attackBoss() {
   fighting = 2;
   goFight();
 }
 
 function goFight() {
   update(locations[3]);
-  monsterHealth = monsters[fighting].health;
+  monsterHealth = monsters[fighting].phages;
   monsterStats.style.display = "block";
   monsterName.innerText = monsters[fighting].name;
   monsterHealthText.innerText = monsterHealth;
 }
 
 function attack() {
-  text.innerText = "The " + monsters[fighting].name + " attacks.";
-  text.innerText += " You attack it with your " + weapons[currentWeapon].name + ".";
-  health -= getMonsterAttackValue(monsters[fighting].level);
+  text.innerText = "The " + monsters[fighting].name + " releases antiviral enzymes.";
+  text.innerText += " You attack it with your " + adaptations[currentAdaptation].name + ".";
+  phages -= getMonsterAttackValue(monsters[fighting].level);
   if (isMonsterHit()) {
-    monsterHealth -= weapons[currentWeapon].power + Math.floor(Math.random() * xp) + 1;    
+    monsterHealth -= adaptations[currentAdaptation].power + Math.floor(Math.random() * virulence) + 1;    
   } else {
     text.innerText += " You miss.";
   }
-  healthText.innerText = health;
+  healthText.innerText = phages;
   monsterHealthText.innerText = monsterHealth;
-  if (health <= 0) {
+  if (phages <= 0) {
     lose();
   } else if (monsterHealth <= 0) {
     if (fighting === 2) {
@@ -204,31 +211,31 @@ function attack() {
       defeatMonster();
     }
   }
-  if (Math.random() <= .1 && inventory.length !== 1) {
-    text.innerText += " Your " + inventory.pop() + " breaks.";
-    currentWeapon--;
+  if (Math.random() <= .1 && adaptations.length !== 1) {
+    text.innerText += "The gene coding for your " + adaptations.pop() + " undergoes a nonsense mutation, rendering it useless.";
+    currentAdaptation--;
   }
 }
 
 function getMonsterAttackValue(level) {
-  const hit = (level * 5) - (Math.floor(Math.random() * xp));
+  const hit = (level * 5) - (Math.floor(Math.random() * virulence));
   console.log(hit);
   return hit > 0 ? hit : 0;
 }
 
 function isMonsterHit() {
-  return Math.random() > .2 || health < 20;
+  return Math.random() > .2 || phages < 20;
 }
 
 function dodge() {
-  text.innerText = "You dodge the attack from the " + monsters[fighting].name;
+  text.innerText = "You dodge the " + monsters[fighting].name + "'s attack.";
 }
 
 function defeatMonster() {
-  gold += Math.floor(monsters[fighting].level * 6.7);
-  xp += monsters[fighting].level;
-  goldText.innerText = gold;
-  xpText.innerText = xp;
+  hostCells += Math.floor(monsters[fighting].level * 6.7);
+  virulence += monsters[fighting].level;
+  goldText.innerText = hostCells;
+  xpText.innerText = virulence;
   update(locations[4]);
 }
 
@@ -241,15 +248,15 @@ function winGame() {
 }
 
 function restart() {
-  xp = 0;
-  health = 100;
-  gold = 50;
-  currentWeapon = 0;
-  inventory = ["stick"];
-  goldText.innerText = gold;
-  healthText.innerText = health;
-  xpText.innerText = xp;
-  MAIN();
+  virulence = 0;
+  phages = 100;
+  hostCells = 50;
+  currentAdaptation = 0;
+  adaptations = ["stick"];
+  goldText.innerText = hostCells;
+  healthText.innerText = phages;
+  xpText.innerText = virulence;
+  nextMove();
 }
 
 function easterEgg() {
@@ -268,20 +275,20 @@ function pick(guess) {
   const numbers = [];
   while (numbers.length < 10) {
     numbers.push(Math.floor(Math.random() * 11));
-  }
+  }/*
   text.innerText = "You picked " + guess + ". Here are the random numbers:\n";
   for (let i = 0; i < 10; i++) {
     text.innerText += numbers[i] + "\n";
-  }
+  }*/
   if (numbers.includes(guess)) {
-    text.innerText += "Right! You win 20 gold!";
-    gold += 20;
-    goldText.innerText = gold;
+    text.innerText += "This gene codes for rapid cell division. You gain 2 additional host cells!";
+    hostCells += 20;
+    goldText.innerText = hostCells;
   } else {
-    text.innerText += "Wrong! You lose 10 health!";
-    health -= 10;
-    healthText.innerText = health;
-    if (health <= 0) {
+    text.innerText += "This gene causes the cell to violently commit apoptosis. You lose 10 phages!";
+    phages -= 10;
+    healthText.innerText = phages;
+    if (phages <= 0) {
       lose();
     }
   }
