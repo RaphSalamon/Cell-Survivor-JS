@@ -3,26 +3,38 @@
   <head>
     <meta charset="utf-8">
     <link rel="stylesheet" href="./styles.css">
-    <title>RPG - Dragon Repeller</title>
+    <title>Synbio RPG - Biofilm Buster</title>
   </head>
-  <body>
-    <div id="game">
-      <div id="stats">
-        <span class="stat">XP: <strong><span id="xpText">0</span></strong></span>
-        <span class="stat">Health: <strong><span id="healthText">100</span></strong></span>
-        <span class="stat">Gold: <strong><span id="goldText">50</span></strong></span>
+  <body class="dc-body">
+    <div id="dc-game">
+      <div id="dc-stats">
+        <span class="dc-stat">Virulence: <strong><span id="virulenceText">0</span></strong></span>
+        <span class="dc-stat">Phages: <strong><span id="phagesText">100</span></strong></span>
+        <span class="dc-stat">Host Cells: <strong><span id="hostsText">5</span></strong></span>
       </div>
-      <div id="controls">
-        <button id="button1">Go to store</button>
-        <button id="button2">Go to cave</button>
-        <button id="button3">Fight dragon</button>
+      <div id="dc-controls">
+        <dc-button id="button1">Upgrades & Maintenance</dc-button>
+        <dc-button id="button2">Aquire More Hosts</dc-button>
+        <dc-button id="button3">Attack K. Pneumoniae Biofilm</dc-button>
       </div>
-      <div id="monsterStats">
-        <span class="stat">Monster Name: <strong><span id="monsterName"></span></strong></span>
-        <span class="stat">Health: <strong><span id="monsterHealth"></span></strong></span>
+      <div id="dc-colonyStats">
+        <span class="dc-stat"> Name: <strong><span id="colonyName"></span></strong></span>
+        <span class="dc-stat">Colony Health: <strong><span id="colonyHealthText"></span></strong></span>
       </div>
-      <div id="text">
-        Welcome to Dragon Repeller. You must defeat the dragon that is preventing people from leaving the town. You are in the town square. Where do you want to go? Use the buttons above.
+      <div id="dc-text">
+        <p>Welcome to Biofilm Buster. You are an experimental bacteriophage designed to attack species of pathogenic bacteria found in hospitals. Due to a breakthrough in synthetic biology, you have the ability to precisely control your hosts' internal machinery. This allows you to strategically "steer" your hosts and mutate yourself at a faster rate than any natural bacteriophage.
+        <br>
+        The scientists who engineered you hope this will make you a match for tough, highly antibiotic-resistant biofilms. You are currently in a petri dish with several species of target pathogens. Your task: eradicate an entrenched K. Pneumoniae biofilm.
+        </p>
+        <p><em>Can you beat the bad bacteria?</em></p>
+
+        <p>Tips:
+        <ul>
+          <li>So long as the number of phages doesn't equal zero, you are still "alive".</li>
+          <li>Without host cells to "steer," you cannot engineer yourself and do not have control over whether you encounter enemies.</li>
+          <li>The higher your virulence, the more effectively you can attack (and infect) colonies.</li>
+        </ul>
+        </p>
       </div>
     </div>
     <script src="./script.js"></script>
